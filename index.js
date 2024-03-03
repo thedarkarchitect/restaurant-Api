@@ -3,9 +3,11 @@ import mongoose from 'mongoose'
 import * as path from 'path';
 import { fileURLToPath } from 'url';
 import Restaurant from './model/restaurant.model.js'
+// import router from './routes/restaurant.route.js'
+// import 
 // import morgan from 'morgan';
 
-const app = express();
+const app = express()
 const Port = 4000;
 const __filename = fileURLToPath(import.meta.url); 
 const __dirname = path.dirname(__filename);
@@ -16,12 +18,17 @@ app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 // app.use(morgan('dev'));
 app.use(express.static(path.join(__dirname, 'views')));
+// app.use("/api/restaurants", restaurantRoute);
 
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'views', 'login.html'));
+    res.sendFile(path.join(__dirname, 'views', 'index.html'));
 });
 
-app.get('/api', async (req, res) => {
+app.get('/api/restaurants/about', (req, res) => {
+    res.sendFile(path.join(__dirname, 'views', 'about.html'));
+});
+
+app.get('/api/restaurants', async (req, res) => {
     try {
         const restaurants = await Restaurant.find({});
         res.status(200).json(restaurants);
@@ -31,15 +38,13 @@ app.get('/api', async (req, res) => {
 });
 
 app.post('/api/restaurants', async (req, res) => {
-    // const restaurant = new Restaurant(req.body)
+
     const restaurant = req.body
-    
-    // console.log(restaurant.rating)
 
     try {
         const stored = new Restaurant(restaurant)
         await stored.save();
-        // res.sendFile(__dirname, "views", "success.html")
+        
         res.status(200).json(restaurant);
         
     } catch (error) {
@@ -48,51 +53,51 @@ app.post('/api/restaurants', async (req, res) => {
     
 });
 
-// app.get('/restaurant/:id', (req, res) => {
-//     const restId = req.params;
-//     console.log(restId)
-//     const restfound = restaurants.find( (rest) => {
-//         if(rest.id === restId.id){
-//             return rest
-//         }
-//     } )
-//     console.log(restfound)
-//     res.send(restfound)
-// });
+app.get('/api/restaurants/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const restaurant = await Restaurant.findById(id);
+        res.status(200).json(restaurant)
+    } catch (error) {
+        res.status(500).json({message: error.message})
+    }
+});
 
-// app.put('/restaurant/:id', (req, res) => {
-//     const { id } = req.params
+app.put('/api/restaurants/:id', async (req, res) => {
+    try {
+        const { id } = req.params
 
-//     const { name, location, category } = req.body
-    
-//     const restaurant = restaurants.find( (rest) => {
-//         if(rest.id === id){
-//             return rest
-//         }
-//     })
+        const restaurant = await Restaurant.findByIdAndUpdate(id, req.body);
 
-//     if(name){
-//         restaurants.name = name
-//     }
+        if (!restaurant) {
+            return res.status(404).json({message: "Restaurant not found" });
+        }
 
-//     if(location){
-//         restaurants.location = location
-//     }
+        //update the db item
+        const updateRestaurant = await Restaurant.findById(id);
+        res.status(200).json(updateRestaurant);
 
-//     if(category){
-//         restaurants.category = category
-//     }
+    } catch (error) {
+        res.status(500).json({message: error.message});
+    }
+});
 
-//     res.send(`The restuarant with id: ${id} is updated.`)
-// });
+app.delete('/api/restaurants/:id', async (req, res) => {
+    try {
+        const { id } = req.params
 
-// app.delete('/restaurant/:id', (req, res) => {
-//     const restPost = req.body;
-//     console.log(restPost);
+        const restaurant = await Restaurant.findByIdAndDelete(id);
 
-//     restaurant.push(restPost);
-//     res.send(`restaurant with id ${restPost.id} !`);
-// });
+        if (!restaurant) {
+            return res.status(404).json({message: "Restaurant not found!"});
+        }
+
+        res.status(200).json({message: "Restaurant deleted successfully"});
+
+    } catch  (error) {
+        res.status(500).json({message: error.message});
+    }
+});
 
 app.listen(Port, () => console.log(`Server Running on port: http://localhost:${Port} `));
 
