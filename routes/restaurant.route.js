@@ -1,22 +1,22 @@
-// import { Router } from 'express'
-// import controller from '../controllers/restaurant.controller'
+import { Router } from 'express'
+import {sendAboutPage , sendHomePage, getRestaurants, getRestaurant, createRestaurant, updateRestaurant, deleteRestaurant} from '../controllers/restaurant.controller.js'
 
 
 
-// const router = Router();
+const router = Router();
 
-// router.get('/', controller.sendHomePage);
-// router.get('/about', controller.sendAboutPage);
+// router.get('/', sendHomePage);
+// router.get('/about', sendAboutPage);
 
-// router.get('/', controller.getRestaurants)
+router.get('/', getRestaurants)
 
-// router.post('/', controller.createRestaurant);
+router.post('/', createRestaurant);
 
-// router.get('/:id', controller.getRestaurant)
+router.get('/:id', getRestaurant)
 
-// router.put('/:id', controller.updateRestaurant);
+router.put('/:id', updateRestaurant);
 
-// router.delete('/:id', controller.deleteRestaurant);
+router.delete('/:id', deleteRestaurant);
 
 
-// export default router;
+export default router;
